@@ -18,6 +18,11 @@ After calling monitorPod.sh you will have dlltagent_search.yaml ready to apply.
 
 This yaml will installs dlltagent in the proper node where the pod to be analyzed is running.
 
+Please do not touch dlltagent_pod.yaml, this is the basis for the dlltagent_search.yaml
+
+If you need to search any specific text, you need to modify the env variable SEARCH_HTTP_HEADER in dlltagent_search,
+now with value 'X-Pepe'. dlltagent will detect the corresponding message and will track that connection and dump it to a pcap file.
+
 
 How is this useful?
 1.You can detect SSL issues very easily
