@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#
+# This code is property of Wayaga LLC
+# You shouldn't use it without authorization of Wayaga LLC
+# To use it please contact rodolfo.kohn@wayaga.com for authorization
+#
+
+
 # $1 is the pod that we want to monitor
 
 POD_NAME=
