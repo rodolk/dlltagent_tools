@@ -25,11 +25,14 @@ now with value 'X-Pepe'. dlltagent will detect the corresponding message and wil
 
 
 How is this useful?
-1.You can detect SSL issues very easily
-2. You can detect connectivity issues
+1. You can detect SSL issue with details of the exact problem
+2. You can detect a variety of connectivity issues
 3. You can detect a connection where the first GET or POST message contains a special text in the HTTP headers.
 4. You will have the pcap file of the connection and messages that had an issue.
 
+It has some known limitations:
+-This manifest lets you use a docker image that will monitor only one virtual interface in one node. You still can create a pod per virtual interface.
+-If the pod is killed, the virtual interface goes down and dlltagent cannot handle that event yet
 
 This code is property of Wayaga LLC
 You shouldn't use it without authorization of Wayaga LLC
