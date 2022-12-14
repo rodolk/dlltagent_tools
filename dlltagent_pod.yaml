@@ -23,6 +23,8 @@ spec:
     env:
       - name: SEARCH_HTTP_HEADER
         value: "X-Pepe"
+      - name: FOLLOW_PORT
+        value: "6060"
       - name: INTERFACE_INDEX_SNIF
         value: "345345345"
       - name: USE_EBPF
