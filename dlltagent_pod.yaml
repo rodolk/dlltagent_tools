@@ -27,6 +27,8 @@ spec:
         value: "6060"
       - name: INTERFACE_INDEX_SNIF
         value: "345345345"
+      - name: AVOID_LIVENESS_PROBE
+        value: "345AVOID_LIVENESS_PROBE345"
       - name: USE_EBPF
         value: "N"
       - name: MEJOR_EQUIPO
