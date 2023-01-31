@@ -16,7 +16,7 @@ spec:
   hostNetwork: true
   containers:
   - name: dllt-agent
-    image: rodolk/dlltagent_search:v1
+    image: rodolk/dlltagent:v1
     imagePullPolicy: Always
     securityContext:
       privileged: true
