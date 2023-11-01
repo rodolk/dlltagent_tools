@@ -38,6 +38,10 @@ In NODE:
 The host or node will store the same files in directory
 /dllt
 
+Useful kubectl commands:
+------------------------
+kubectl exec -it dlltagent -- ls logs   : will find out the specific folder for the interface where logs and pcap files are saved.
+kubectl cp dlltagent:logs/dllt5/end_flows_2023_11_01_22_56_37.log end_flows_2023_11_01_22_56_37.log : will copy a file from the pod to the local machine
 
 
 Understanding netwevents codes:
@@ -81,3 +85,4 @@ Code	 Code text value					     Description                                      
 Need to fix:
 ------------
 Because of an error, process data is not appearing with Kubernetes, this is to be fixed in the future.
+
