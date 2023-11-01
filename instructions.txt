@@ -1,0 +1,83 @@
+
+Some instructions to run dllt agent
+
+ENV variables
+-------------
+You can modify the values in the generated file dlltagent_searchpod
+
+SEARCH_HTTP_HEADER: set the value to a specific header when you want to follow a connection and generate a pcap file after 30 secs. DLLT will find the header and follow that connection.
+FOLLOW_PORT: Set it to a port value if you want to have a pcap file of a connection using that destination or source port. The pcap file will be generated after 30 sec.
+INTERFACE_INDEX_SNIF: indicated the index of the interface where dllt agent is going to listen. It is set by the script monitorPod.sh
+AVOID_LIVENESS_PROBE: set a header identifying a connection you don't want to follow in order to avoid related pcap files and events. You can use it to avoid pcap files for pod liveness probes in Kubernetes.
+USE_EBPF: to use ebpf to identify the processes making connections. Values: [YN]
+MEJOR_EQUIPO: don't change, it refers to the author's soccer team.
+AUTHOR: don't change
+
+
+Output files:
+-------------
+
+DLLT agent will generate the following files:
+1-log_notif file with this fortmat: log_notif_2023_10_31_22_50_27.log
+2-flows_ file with format: flows_2023_10_31_22_50_27.log
+3-end_flows file with format: end_flows_2023_10_31_22_50_27.log
+4-output: outputfile.txt
+5-processEBF: output when ebpf is used, format: processEBPF_2023_10_31_22_50_27.log
+6-process_flows with format: process_flows_2023_10_31_22_50_27.log
+7-netwevents, format: netwevents_2023_10_31_22_50_27.log
+
+
+Output directories:
+-------------------
+In POD:
+/dllt/logs/dllt#
+/dllt/dllt#
+# is the interface's index
+
+In NODE:
+The host or node will store the same files in directory
+/dllt
+
+
+
+Understanding netwevents codes:
+-------------------------------
+
+Code	 Code text value					     Description                                                   Probable cause
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+00001	CODE_TCP_SYN_RETRANS_STR       	| When a SYN message is resent					     | This means: 1) there is high latency 2) The IP is unreachable because a port is closed or it doesn't exist (node crashed, application configuration error, Pod deleted)										
+										|											         |
+00002	CODE_TCP_RESET_STR             	| When a RST message is received from                | This could be a problem or not. 1) One of the applications may have crashed 2) did not accept a negotiation with the other application and closed the connection. 3) In HTTP connections this is a normal way of closing connections to avoid the socket protecting time.										
+										| one side of a established connection.              |		
+00003	CODE_TCP_IS_TLS_STR            	| When a TLS connection is established               | This indicates a connection is TLS. This is configurable.										
+										|											         |
+00004	CODE_TLS_ALERT_STR             	| When a TLS alert is sent by one side of a          | This happens 1) On TLS handshake failure 2) An error during the communication, this is not usual 3) A close alert indicating connection is to be closed (not a problem)
+                                        | TLS connection.                                    |
+										|                                                    |
+00005	CODE_TLS_EXCEP_STR             	| When an error is detected in the TLS protocol	     | This happens when a message is corrupted or there is an implementation error on one application. The TLS protocol is not followed.										
+										|                                                    |
+00006	CODE_TCP_PARTIAL_CONNECTION_STR	| When a TCP connection was never completed, 		 | This happens, if the monitored side received a SYN message and returned SYN-ACK, because of a possible TCP-half-open-connection DoS attack, or a scanning for opened ports. If the monitored side sent the SYN message, this is because the other side in unreachable: configuration error, the other node crashed, the pod was deleted.										
+										| the handshake was not completed, and one side has a| 
+										| half-open connection after 30 secs.                |						
+										|                                                    |
+00007	CODE_TCP_ESTABLISHED_STALE_STR 	| When an established TCP connection suddenly stopped| It can detect connections that suddenly stop streaming data because of an application error on one side.
+                                        | sending data from one or both sides.               |
+										| This is an early sign.                             |
+										|                                                    |
+00008	CODE_TCP_ESTABLISHED_STALE2_STR	| When an established TCP connection suddenly stopped| It can detect connections that suddenly stop streaming data because of an application error on one side.
+                                        | sending data from one or both sides.               |
+										| This is a stronger proof of a possible problem.    |			
+										|                                                    |
+00009	CODE_TCP_SYN_RESET_STR         	| When a node or pod receives a connection request   | This happens because 1) The listening application has crashed 2) a process is trying to connect to an application that doesn't exist because of a configuration error or 3) it can be a malicious process seaching for assets in the network
+                                        | for a port where no application is listening.      |			
+										|                                                    |
+00010	CODE_TCP_RESET_ABNORMAL_STR    	| When an abnormal quantity of RESET connection      | This happens for a configuration error in one application, an error in one application, or a monitored node/pod that is being attacked to gain access.
+                                        | has been seen for a specific IP/port               |
+										|                                                    |
+00011	CODE_VIF_DISAPPEARED           	| When a Kubernetes pod is deleted and the virtual   | This happens when a Kubernetes pod is deleted. It can be an error in the application running in the main container or the pod is being migrated to run in other node.
+                                        | interface disappears
+
+
+Need to fix:
+------------
+Because of an error, process data is not appearing with Kubernetes, this is to be fixed in the future.

@@ -14,6 +14,7 @@ spec:
     operator: Exists
     effect: NoSchedule
   hostNetwork: true
+  hostPID: true
   containers:
   - name: dllt-agent
     image: rodolk/dlltagent:v1
@@ -59,7 +60,7 @@ spec:
       path: /sys/kernel/debug
   - name: dlltuser
     hostPath:
-      path: /dllt2/logs
+      path: /dllt/logs
   - name: tmp
     emptyDir: {}
   terminationGracePeriodSeconds: 60
