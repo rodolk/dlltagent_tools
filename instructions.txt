@@ -9,7 +9,7 @@ SEARCH_HTTP_HEADER: set the value to a specific header when you want to follow a
 FOLLOW_PORT: Set it to a port value if you want to have a pcap file of a connection using that destination or source port. The pcap file will be generated after 30 sec.
 INTERFACE_INDEX_SNIF: indicated the index of the interface where dllt agent is going to listen. It is set by the script monitorPod.sh
 AVOID_LIVENESS_PROBE: set a header identifying a connection you don't want to follow in order to avoid related pcap files and events. You can use it to avoid pcap files for pod liveness probes in Kubernetes.
-USE_EBPF: to use ebpf to identify the processes making connections. Values: [YN]
+USE_EBPF: to use ebpf to identify the processes making connections. Values: [YN]. Default is N.
 MEJOR_EQUIPO: don't change, it refers to the author's soccer team.
 AUTHOR: don't change
 
@@ -82,7 +82,22 @@ Code	 Code text value					     Description                                      
                                         | interface disappears
 
 
+Other data in netwevents:
+value: this depends on the code, for SSL alerts, value will carry the specific SSL error.
+if: interface
+nodeIP: 0: the srcIP corresponds to the interface that is being monitored 1: dstIP corresponds to the interface we are monitoring
+latency: is latency in microseconds calculating the difference between time when SYN was seen and time when SYN-ACK was seen, when the nodeIP is 0, this is actually Round-trip-time, divide it by 2.
+         When nodeIP is 1, this is the difference between SYN-ACK was sent until the final hanshake ACK is received.
+localLatency: when nodeIP is 1, this is time difference between SYN received and SYN-ACK sent back. This should be always 0.
+
+
+
+This code was tested in AWS EC2 instances with AWS images that have EBPD enabled.
+
+
 Need to fix:
 ------------
-Because of an error, process data is not appearing with Kubernetes, this is to be fixed in the future.
+Because of an error, process data cannot be found for incoming connections when using Kubernetes. 
+For out going, process data can be found when using EBPF.
+This is going to be fixed.
 

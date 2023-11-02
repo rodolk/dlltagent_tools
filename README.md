@@ -45,6 +45,8 @@ It has some known limitations:
 -At very high throughput, it can lose packets.
 
 This code is property of Wayaga LLC
+You can use it free of charge. 
+Wayaga LLC is not responsible for any issue occuring by its use.
 Please let us know if you are using it and send your feedback to rodolfo.kohn@wayaga.com
 
 
