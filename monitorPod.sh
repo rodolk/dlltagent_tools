@@ -67,12 +67,22 @@ echo "Configuring yaml for pod ${POD_NAME}, namespace ${NAMESPACE}, interface ${
 #PATH=$PATH:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/ec2-user/.local/bin:/home/ec2-user/bin
 #/sbin/ip addr
 
-VINTERF=$(kubectl exec -it ${POD_NAME} -n${NAMESPACE} -- env PATH=$PATH:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/ec2-user/.local/bin:/home/ec2-user/bin ip addr | grep eth0@ | sed "s/^.*\(${INTERFACE}@if\)\([0-9]*\):.*$/\2/")
+PEER_VINTERF=$(kubectl exec -it ${POD_NAME} -n${NAMESPACE} -- env PATH=$PATH:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/ec2-user/.local/bin:/home/ec2-user/bin ip addr | grep eth0@ | sed "s/^.*\(${INTERFACE}@if\)\([0-9]*\):.*$/\2/")
+if [[ $? -ne 0 || -z "${PEER_VINTERF}" ]]; then
+  echo "ip addr command did not work. Trying with iflink"
+  PEER_VINTERF=$(kubectl exec -it ${POD_NAME} -n ${NAMESPACE} -- cat /sys/class/net/eth0/iflink)
+  if [[ $? -ne 0 || -z "${PEER_VINTERF}" ]]; then
+    echo "Error: Could not find peer interface in pod ${POD_NAME} in namespace ${NAMESPACE} for pod interface ${INTERFACE}"
+    echo "You will need to find the peer interface manually and update the yaml file"
+    exit 1
+  fi
+fi
+PEER_VINTERF=$(echo -e "$PEER_VINTERF" | tr -d '\n\r\l')
 NODE=$(kubectl get pod ${POD_NAME} -n${NAMESPACE} -o=custom-columns=:.spec.nodeName | grep [[:alnum:]])
 echo "NODE: $NODE"
-echo "VIRTUAL INTERFACE: $VINTERF"
+echo "VIRTUAL INTERFACE: $PEER_VINTERF---"
 
-sed -e "s/345345345/${VINTERF}/" -e "s/default345/${NAMESPACE}/" -e "s/changeNodeName/${NODE}/" dlltagent_pod.yaml > ${OUTPUT_FILE}
+sed -e "s/345345345/${PEER_VINTERF}/" -e "s/default345/${NAMESPACE}/" -e "s/changeNodeName/${NODE}/" dlltagent_pod.yaml > ${OUTPUT_FILE}
 
 echo "Generated file ${OUTPUT_FILE}. You can apply this file"
 
